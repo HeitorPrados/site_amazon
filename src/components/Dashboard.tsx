@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { Product } from '../types';
 import { fetchProducts, insertProduct, updateProductRow, deleteProductRow, signOut } from '../lib/supabase';
-import { ORPHAN_LINKS, catRate } from '../lib/constants';
+import { catRate } from '../lib/constants';
 import ProductRow from './ProductRow';
 
 interface DashboardProps {
@@ -149,7 +149,7 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
 
   return (
     <div id="appShell">
-      <header className="header-bg p-[20px] md:p-[26px_30px_20px] border-b border-line-strong flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 lg:gap-4">
+      <header className="header-bg p-[20px] md:p-[26px_30px_20px] border-b border-[rgba(255,255,255,0.05)] flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 lg:gap-4">
         <div>
           <div className="font-mono text-[11px] tracking-[.14em] uppercase text-amber mb-1.5">Controle de sourcing · Shopee → Amazon</div>
           <h1 className="font-display text-[26px] m-0 tracking-[-0.02em] text-white">Painel de Arbitragem</h1>
@@ -160,20 +160,20 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
         <div className="flex flex-col items-start lg:items-end gap-3 w-full lg:w-auto">
           <div className="flex items-center gap-2 font-mono text-[11px] text-muted self-end">
             <span id="userEmail">{userEmail}</span>
-            <button onClick={handleLogout} className="bg-transparent border border-line-strong text-muted font-mono text-[10px] uppercase p-[4px_9px] cursor-pointer hover:text-red hover:border-red-soft transition-colors">
+            <button onClick={handleLogout} className="bg-transparent border border-[rgba(255,255,255,0.05)] text-muted font-mono text-[10px] uppercase p-[4px_9px] cursor-pointer hover:text-red hover:border-red-soft transition-colors">
               sair
             </button>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 border border-line-strong bg-panel font-mono w-full">
-            <div className="p-[9px_12px] md:p-[9px_16px] border-r border-b sm:border-b-0 border-line-strong min-w-[90px] md:min-w-[100px]">
+          <div className="grid grid-cols-2 sm:grid-cols-4 rounded-lg border border-[rgba(255,255,255,0.05)] bg-[#0d1017] font-mono overflow-hidden w-full">
+            <div className="p-[9px_12px] md:p-[9px_16px] border-r border-b sm:border-b-0 border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
               <div className="font-display text-[19px] font-bold text-white">{stats.total}</div>
               <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">produtos</div>
             </div>
-            <div className="p-[9px_12px] md:p-[9px_16px] sm:border-r border-b sm:border-b-0 border-line-strong min-w-[90px] md:min-w-[100px]">
+            <div className="p-[9px_12px] md:p-[9px_16px] sm:border-r border-b sm:border-b-0 border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
               <div className="font-display text-[19px] font-bold text-white">{stats.filled}</div>
               <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">c/ margem</div>
             </div>
-            <div className="p-[9px_12px] md:p-[9px_16px] border-r border-line-strong min-w-[90px] md:min-w-[100px]">
+            <div className="p-[9px_12px] md:p-[9px_16px] border-r border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
               <div className="font-display text-[19px] font-bold text-white">{stats.pos}</div>
               <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">margem +</div>
             </div>
@@ -196,18 +196,18 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
             placeholder="Buscar por ASIN ou nome do produto..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="flex-1 w-full md:min-w-[220px] p-[9px_12px] border border-line-strong bg-panel text-ink font-mono text-[12.5px] focus:outline-none focus:border-amber placeholder:text-muted2"
+            className="flex-1 w-full md:min-w-[220px] p-[9px_12px] rounded-md border border-[rgba(255,255,255,0.05)] bg-[#0d1017] text-ink font-mono text-[12.5px] focus:outline-none focus:border-amber placeholder:text-muted2"
           />
           <select
             value={filterVal}
             onChange={e => setFilterVal(e.target.value)}
-            className="w-full md:w-auto p-[9px_10px] border border-line-strong bg-panel text-ink font-sans text-[12.5px] focus:outline-none"
+            className="w-full md:w-auto p-[9px_10px] rounded-md border border-[rgba(255,255,255,0.05)] bg-[#0d1017] text-ink font-sans text-[12.5px] focus:outline-none"
           >
-            <option value="all">Todos</option>
-            <option value="filled">Com margem calculada</option>
-            <option value="empty">Sem margem</option>
-            <option value="pos">Margem positiva</option>
-            <option value="neg">Margem negativa</option>
+            <option value="all" className="bg-[#0d1017] text-ink">Todos</option>
+            <option value="filled" className="bg-[#0d1017] text-ink">Com margem calculada</option>
+            <option value="empty" className="bg-[#0d1017] text-ink">Sem margem</option>
+            <option value="pos" className="bg-[#0d1017] text-ink">Margem positiva</option>
+            <option value="neg" className="bg-[#0d1017] text-ink">Margem negativa</option>
           </select>
           <div className="flex flex-1 gap-2 w-full md:min-w-[220px]">
             <input
@@ -215,12 +215,12 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
               placeholder="Digite o ASIN para adicionar..."
               value={newAsin}
               onChange={e => setNewAsin(e.target.value)}
-              className="flex-1 p-[9px_12px] border border-line-strong bg-panel text-ink font-mono text-[12.5px] focus:outline-none focus:border-amber placeholder:text-muted2"
+              className="flex-1 p-[9px_12px] rounded-md border border-[rgba(255,255,255,0.05)] bg-[#0d1017] text-ink font-mono text-[12.5px] focus:outline-none focus:border-amber placeholder:text-muted2"
             />
             <button
               onClick={handleAddProduct}
               disabled={!newAsin}
-              className="whitespace-nowrap p-[6px_10px] text-[10.5px] border border-line-strong bg-transparent text-muted font-mono font-semibold tracking-[.03em] uppercase cursor-pointer transition-colors hover:text-ink hover:border-ink disabled:opacity-50"
+              className="whitespace-nowrap p-[6px_10px] text-[10.5px] rounded-md border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] text-muted font-mono font-semibold tracking-[.03em] uppercase cursor-pointer transition-colors hover:text-ink hover:border-ink disabled:opacity-50"
             >
               + adicionar
             </button>
@@ -230,29 +230,29 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
         {isLoading ? (
           <div className="p-[60px_30px] font-mono text-muted">carregando seus produtos...</div>
         ) : products.length === 0 ? (
-          <div className="p-[34px] text-center border border-dashed border-line-strong bg-panel mt-4">
+          <div className="p-[34px] text-center border border-dashed border-[rgba(255,255,255,0.05)] bg-[#0d1017] mt-4">
             <p className="text-muted text-[12.5px] max-w-[440px] mx-auto leading-[1.6]">
               Sua conta ainda não tem produtos cadastrados. Adicione um novo produto pelo ASIN acima.
             </p>
           </div>
         ) : (
-          <div className="md:border md:border-line-strong md:bg-panel -mx-[20px] md:mx-0">
+          <div className="-mx-[20px] md:mx-0">
             <table className="w-full border-collapse block md:table">
               <thead className="hidden md:table-header-group">
                 <tr>
-                  <th className="sticky top-0 bg-[#181c26] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[10px_12px] border-b border-line-strong border-r border-line whitespace-nowrap">Produto / ASIN</th>
-                  <th className="sticky top-0 bg-[#181c26] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[10px_12px] border-b border-line-strong border-r border-line whitespace-nowrap">Fornecedores (Shopee)</th>
-                  <th className="sticky top-0 bg-[#181c26] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[10px_12px] border-b border-line-strong border-r border-line whitespace-nowrap">Categoria</th>
-                  <th className="sticky top-0 bg-[#181c26] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[10px_12px] border-b border-line-strong border-r border-line whitespace-nowrap">Venda</th>
-                  <th className="sticky top-0 bg-[#181c26] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[10px_12px] border-b border-line-strong border-r border-line whitespace-nowrap">Margem / Lucro</th>
-                  <th className="sticky top-0 bg-[#181c26] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[10px_12px] border-b border-line-strong whitespace-nowrap"></th>
+                  <th className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap">Produto</th>
+                  <th className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap">Fornecedores (Shopee)</th>
+                  <th className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap">Categoria</th>
+                  <th className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap">Venda</th>
+                  <th className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap">Margem / Lucro</th>
+                  <th className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap"></th>
                 </tr>
               </thead>
               <tbody className="block md:table-row-group">
                 {filteredProducts.length === 0 ? (
                   <tr className="block md:table-row">
-                    <td colSpan={6} className="block md:table-cell p-0 md:border-r border-line last:border-r-0">
-                      <div className="font-mono text-[11.5px] text-muted p-4 border border-dashed border-line-strong bg-panel m-2">
+                    <td colSpan={6} className="block md:table-cell p-0 md:last:border-r-0">
+                      <div className="font-mono text-[11.5px] text-muted p-4 border border-dashed border-[rgba(255,255,255,0.05)] bg-[#0d1017] m-2">
                         Nenhum produto encontrado com esse filtro.
                       </div>
                     </td>
@@ -274,22 +274,6 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
           </div>
         )}
 
-        {!searchTerm && filterVal === 'all' && products.length > 0 && (
-          <div className="mt-[30px] border-t border-line-strong pt-4">
-            <h2 className="font-display text-[15px] m-0 mb-1.5 text-white">Links soltos (sem ASIN identificado)</h2>
-            <p className="text-muted text-[12px] m-0 mb-2.5 max-w-[640px]">
-              Esses links da Shopee apareceram no grupo sem um ASIN logo abaixo — confira e associe a um produto se for o caso.
-            </p>
-            <div className="flex flex-col gap-1.5">
-              {ORPHAN_LINKS.map((o, i) => (
-                <div key={i} className="font-mono text-[11.5px] bg-panel border border-line p-[8px_12px] flex justify-between gap-2.5 items-center flex-wrap">
-                  <a href={o.url} target="_blank" rel="noopener noreferrer" className="text-amber no-underline hover:underline">{o.url}</a>
-                  <span className="text-muted text-[10.5px]">{o.note}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         <footer className="mt-[34px] pt-3.5 border-t border-line text-[10.5px] text-muted2 font-mono flex gap-[22px] flex-wrap">
           <span><b className="text-muted font-normal">Margem</b> = lucro ÷ preço de venda</span>

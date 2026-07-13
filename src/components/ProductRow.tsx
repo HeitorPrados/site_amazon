@@ -71,50 +71,52 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
   };
 
   return (
-    <tr className="block md:table-row border-b border-line md:hover:bg-[rgba(224,152,63,0.035)] group mb-4 md:mb-0 border border-line-strong md:border-0 md:border-b bg-[#10131a] md:bg-transparent">
-      <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 md:border-r border-line align-top md:w-[190px]">
-        <div className="md:hidden font-mono text-[10px] uppercase tracking-[.07em] text-muted mb-2 font-semibold">Produto / ASIN</div>
-        <div className="font-mono font-semibold text-[14px] text-white">{p.asin}</div>
-        <a 
-          href={`https://www.amazon.com.br/dp/${p.asin}`} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="inline-block mt-1 text-[10.5px] text-amber no-underline border-b border-dotted border-amber"
-        >
-          ver na Amazon →
-        </a>
+    <tr className="block md:table-row border-b border-line md:hover:bg-[rgba(255,255,255,0.015)] transition-colors group mb-6 md:mb-0 bg-[#0d1017] md:bg-transparent rounded-lg md:rounded-none overflow-hidden border border-line-strong md:border-0 md:border-b">
+      <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 border-line align-top md:w-[220px]">
+        <div className="md:hidden font-mono text-[10px] uppercase tracking-[.07em] text-muted mb-2 font-semibold">Produto</div>
         <input
           type="text"
-          placeholder="nome do produto..."
+          placeholder="Nome do produto..."
           value={p.nome}
           onChange={(e) => handleFieldChange('nome', e.target.value)}
-          className="w-full mt-2 border-none border-b border-line-strong bg-transparent text-ink font-display text-[12.5px] py-1 focus:outline-none focus:border-amber transition-colors"
+          className="w-full mb-1 border-none bg-transparent text-white font-display text-[15px] font-medium py-1 focus:outline-none focus:border-b focus:border-amber transition-colors placeholder:text-muted2"
         />
+        <div className="flex items-center gap-2 mb-2">
+          <span className="font-mono text-[11px] text-muted">{p.asin}</span>
+          <a 
+            href={`https://www.amazon.com.br/dp/${p.asin}`} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-[10px] text-amber no-underline border-b border-dotted border-amber opacity-80 hover:opacity-100"
+          >
+            ver →
+          </a>
+        </div>
         <textarea
-          placeholder="observações..."
+          placeholder="Observações (opcional)..."
           value={p.notas}
           onChange={(e) => handleFieldChange('notas', e.target.value)}
-          className="w-full mt-2 resize-y min-h-[32px] border border-line bg-panel2 text-muted font-sans text-[10.5px] p-[5px_6px] focus:outline-none focus:border-line-strong"
+          className="w-full mt-1 resize-y min-h-[32px] border border-line bg-[#141822] text-muted font-sans text-[11px] p-[6px_8px] focus:outline-none focus:border-line-strong rounded-md"
         />
       </td>
 
-      <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 md:border-r border-line align-top md:min-w-[320px]">
+      <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 border-line align-top md:min-w-[320px]">
         <div className="md:hidden font-mono text-[10px] uppercase tracking-[.07em] text-muted mb-2 font-semibold">Fornecedores (Shopee)</div>
         <table className="w-full border-collapse">
           <tbody>
             {p.suppliers.map(s => (
-              <tr key={s.id} className="border-b border-line last:border-b-0">
+              <tr key={s.id} className="border-b border-[rgba(255,255,255,0.05)] last:border-b-0">
                 <td className="w-[22px] text-center py-1">
                   <input
                     type="radio"
                     name={`pick-${p.id}`}
                     checked={p.selected === s.id}
                     onChange={() => handleFieldChange('selected', s.id)}
-                    className="appearance-none w-[14px] h-[14px] border-[1.5px] border-muted2 rounded-full cursor-pointer relative m-0 checked:border-select checked:bg-select after:content-[''] after:absolute after:inset-[3px] after:bg-[#0b0d12] after:rounded-full after:opacity-0 checked:after:opacity-100"
+                    className="appearance-none w-[14px] h-[14px] border-[1.5px] border-muted2 rounded-full cursor-pointer relative m-0 checked:border-teal checked:bg-teal after:content-[''] after:absolute after:inset-[3px] after:bg-[#0b0d12] after:rounded-full after:opacity-0 checked:after:opacity-100"
                   />
                 </td>
                 <td className="w-[56px] pr-1.5 py-1">
-                  <span className={`font-mono text-[8.5px] uppercase py-[2px] px-[5px] tracking-[.04em] whitespace-nowrap inline-block ${s.label === 'principal' ? 'bg-select-soft text-select' : 'bg-amber-soft text-amber'}`}>
+                  <span className={`font-mono text-[8.5px] uppercase py-[2px] px-[5px] tracking-[.04em] whitespace-nowrap inline-block ${s.label === 'principal' ? 'bg-teal-soft text-teal' : 'bg-amber-soft text-amber'}`}>
                     {s.label}
                   </span>
                 </td>
@@ -124,7 +126,7 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
                   </a>
                 </td>
                 <td className="w-[80px] sm:w-[100px] pl-1 sm:pl-2 py-1">
-                  <div className={`flex items-center border bg-panel2 ${p.selected === s.id ? 'border-select' : 'border-line-strong'}`}>
+                  <div className={`flex items-center rounded-md border bg-[rgba(255,255,255,0.02)] ${p.selected === s.id ? 'border-teal' : 'border-[rgba(255,255,255,0.05)]'}`}>
                     <span className="pl-1.5 font-mono text-[10.5px] text-muted2">R$</span>
                     <input
                       type="number"
@@ -147,7 +149,7 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
           <input
             type="text"
             placeholder="link do novo fornecedor..."
-            className="flex-1 text-[10.5px] p-[5px_6px] border border-line bg-panel2 text-ink font-mono focus:outline-none focus:border-amber"
+            className="flex-1 text-[10.5px] p-[5px_6px] rounded-md border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] text-ink font-mono focus:outline-none focus:border-amber"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 handleAddSupplier(e.currentTarget.value);
@@ -162,31 +164,31 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
               handleAddSupplier(input.value);
               input.value = '';
             }}
-            className="p-[6px_10px] text-[10.5px] border border-line-strong bg-transparent text-muted font-mono font-semibold tracking-[.03em] uppercase cursor-pointer transition-colors hover:text-ink hover:border-ink"
+            className="p-[6px_10px] text-[10.5px] rounded-md border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] text-muted font-mono font-semibold tracking-[.03em] uppercase cursor-pointer transition-colors hover:text-ink hover:border-ink"
           >
             + fornecedor
           </button>
         </div>
       </td>
 
-      <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 md:border-r border-line align-top md:w-[170px]">
+      <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 border-line align-top md:w-[170px]">
         <div className="md:hidden font-mono text-[10px] uppercase tracking-[.07em] text-muted mb-2 font-semibold">Categoria / Margem / Lucro</div>
         <select
           value={p.categoria}
           onChange={(e) => handleFieldChange('categoria', e.target.value)}
-          className="w-full p-[7px_8px] border border-line-strong font-sans text-[11.5px] bg-panel2 text-ink focus:outline-none focus:border-amber"
+          className="w-full p-[7px_8px] rounded-md border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] font-sans text-[11.5px] text-ink focus:outline-none focus:border-amber"
         >
-          <option value="">— selecionar —</option>
+          <option value="" className="bg-[#0d1017] text-ink">— selecionar —</option>
           {CATEGORIES.map(([name, r]) => (
-            <option key={name} value={name}>{name} ({r as number}%)</option>
+            <option key={name} value={name} className="bg-[#0d1017] text-ink">{name} ({r as number}%)</option>
           ))}
         </select>
-        {rate !== null && <span className="inline-block mt-[7px] font-mono text-[10px] bg-panel2 border border-line-strong text-muted p-[2px_7px]">taxa {rate}%</span>}
+        {rate !== null && <span className="inline-block mt-[7px] font-mono text-[10px] bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.05)] text-muted p-[2px_7px]">taxa {rate}%</span>}
       </td>
 
-      <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 md:border-r border-line align-top md:w-[120px]">
+      <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 border-line align-top md:w-[120px]">
         <div className="md:hidden font-mono text-[10px] uppercase tracking-[.07em] text-muted mb-2 font-semibold">Venda</div>
-        <div className="flex items-center border border-line-strong bg-panel2 focus-within:border-teal transition-colors">
+        <div className="flex items-center rounded-md border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] focus-within:border-teal transition-colors">
           <span className="pl-[7px] font-mono text-[11px] text-muted2">R$</span>
           <input
             type="number"
@@ -199,7 +201,7 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
         </div>
       </td>
 
-      <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 md:border-r border-line align-top md:w-[170px]">
+      <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 border-line align-top md:w-[170px]">
         <div className="md:hidden font-mono text-[10px] uppercase tracking-[.07em] text-muted mb-2 font-semibold">Categoria / Margem / Lucro</div>
         {m ? (
           <>
@@ -227,7 +229,7 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
         </span>
         <button
           onClick={() => onDelete(p.id!)}
-          className="p-[6px_10px] text-[10.5px] border border-red-soft bg-transparent text-red font-mono font-semibold tracking-[.03em] uppercase cursor-pointer hover:bg-red-soft transition-colors"
+          className="p-[6px_10px] text-[10.5px] rounded-md border border-red-soft bg-[rgba(229,100,90,0.05)] text-red font-mono font-semibold tracking-[.03em] uppercase cursor-pointer hover:bg-red-soft transition-colors"
         >
           remover
         </button>
