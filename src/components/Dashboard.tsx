@@ -9,6 +9,11 @@ interface DashboardProps {
   onLogout: () => void;
 }
 
+function money(v: number) {
+  if (isNaN(v)) return "R$ 0,00";
+  return "R$ " + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -136,14 +141,41 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
   }, [products, searchTerm, filterVal]);
 
   const stats = useMemo(() => {
-    const metrics = products.map(computeMetrics).filter(m => m !== null);
-    const pos = metrics.filter(m => m!.lucro > 0).length;
-    const avg = metrics.length ? metrics.reduce((a, m) => a + m!.margem, 0) / metrics.length : null;
+    const metrics = products.map(p => ({ p, m: computeMetrics(p) })).filter(item => item.m !== null);
+    const pos = metrics.filter(item => item.m!.lucro > 0).length;
+    const avg = metrics.length ? metrics.reduce((a, item) => a + item.m!.margem, 0) / metrics.length : null;
+    
+    const fatTotal = products.reduce((acc, p) => {
+       const v = parseFloat(p.precoVenda);
+       const qtd = (p.suppliers || []).reduce((sum, s) => sum + (s.vendas || 0), 0);
+       if (!isNaN(v) && qtd > 0) return acc + (v * qtd);
+       return acc;
+    }, 0);
+
+    const lucroTotal = products.reduce((acc, p) => {
+       const v = parseFloat(p.precoVenda);
+       const rate = catRate(p.categoria);
+       if (isNaN(v) || rate === null || v <= 0) return acc;
+       const taxa = v * (rate / 100);
+
+       const lucroProduto = (p.suppliers || []).reduce((sum, s) => {
+          const compra = parseFloat(s.price);
+          const qtd = s.vendas || 0;
+          if (isNaN(compra) || qtd <= 0) return sum;
+          const lucro = v - taxa - compra;
+          return sum + (lucro * qtd);
+       }, 0);
+
+       return acc + lucroProduto;
+    }, 0);
+
     return {
       total: products.length,
       filled: metrics.length,
       pos,
-      avg: avg !== null ? avg.toFixed(1) + "%" : "–"
+      avg: avg !== null ? avg.toFixed(1) + "%" : "–",
+      fatTotal,
+      lucroTotal
     };
   }, [products]);
 
@@ -164,22 +196,30 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
               sair
             </button>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 rounded-lg border border-[rgba(255,255,255,0.05)] bg-[#0d1017] font-mono overflow-hidden w-full">
-            <div className="p-[9px_12px] md:p-[9px_16px] border-r border-b sm:border-b-0 border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 rounded-lg border border-[rgba(255,255,255,0.05)] bg-[#0d1017] font-mono overflow-hidden w-full">
+            <div className="p-[9px_12px] md:p-[9px_16px] border-r border-b lg:border-b-0 border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
               <div className="font-display text-[19px] font-bold text-white">{stats.total}</div>
               <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">produtos</div>
             </div>
-            <div className="p-[9px_12px] md:p-[9px_16px] sm:border-r border-b sm:border-b-0 border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
+            <div className="p-[9px_12px] md:p-[9px_16px] md:border-r border-b lg:border-b-0 border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
               <div className="font-display text-[19px] font-bold text-white">{stats.filled}</div>
               <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">c/ margem</div>
             </div>
-            <div className="p-[9px_12px] md:p-[9px_16px] border-r border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
+            <div className="p-[9px_12px] md:p-[9px_16px] border-r border-b lg:border-b-0 border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
               <div className="font-display text-[19px] font-bold text-white">{stats.pos}</div>
               <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">margem +</div>
             </div>
-            <div className="p-[9px_12px] md:p-[9px_16px] min-w-[90px] md:min-w-[100px]">
+            <div className="p-[9px_12px] md:p-[9px_16px] md:border-r border-b md:border-b-0 lg:border-b-0 border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
               <div className="font-display text-[19px] font-bold text-white">{stats.avg}</div>
               <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">margem média</div>
+            </div>
+            <div className="p-[9px_12px] md:p-[9px_16px] border-r border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
+              <div className="font-display text-[17px] font-bold text-amber">{money(stats.fatTotal)}</div>
+              <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">Faturamento</div>
+            </div>
+            <div className="p-[9px_12px] md:p-[9px_16px] min-w-[90px] md:min-w-[100px]">
+              <div className={`font-display text-[17px] font-bold ${stats.lucroTotal > 0 ? 'text-teal' : (stats.lucroTotal < 0 ? 'text-red' : 'text-white')}`}>{money(stats.lucroTotal)}</div>
+              <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">Lucro Total</div>
             </div>
           </div>
         </div>

@@ -53,6 +53,16 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
     onChange({ ...p, suppliers });
   };
 
+  const handleSupplierVendasChange = (id: string, vendas?: number) => {
+    const suppliers = p.suppliers.map(s => s.id === id ? { ...s, vendas } : s);
+    onChange({ ...p, suppliers });
+  };
+
+  const handleSupplierLabelChange = (id: string, label: string) => {
+    const suppliers = p.suppliers.map(s => s.id === id ? { ...s, label } : s);
+    onChange({ ...p, suppliers });
+  };
+
   const handleRemoveSupplier = (id: string) => {
     const suppliers = p.suppliers.filter(s => s.id !== id);
     let selected = p.selected;
@@ -74,6 +84,8 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
     const suppliers = [...p.suppliers, newSup];
     onChange({ ...p, suppliers, selected: p.selected || newId });
   };
+
+  const totalVendas = (p.suppliers || []).reduce((acc, s) => acc + (s.vendas || 0), 0);
 
   return (
     <tr className={`block md:table-row border-b border-line md:hover:bg-[rgba(255,255,255,0.015)] transition-colors group mb-6 md:mb-0 bg-[#0d1017] md:bg-transparent rounded-lg md:rounded-none overflow-hidden border border-line-strong md:border-0 md:border-b ${p.active === false ? 'opacity-50 grayscale hover:opacity-100 transition-opacity duration-300' : ''}`}>
@@ -128,9 +140,13 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
                   />
                 </td>
                 <td className="w-[56px] pr-1.5 py-1">
-                  <span className={`font-mono text-[8.5px] uppercase py-[2px] px-[5px] tracking-[.04em] whitespace-nowrap inline-block ${s.label === 'principal' ? 'bg-teal-soft text-teal' : 'bg-amber-soft text-amber'}`}>
+                  <button
+                    onClick={() => handleSupplierLabelChange(s.id, s.label === 'principal' ? 'reserva' : 'principal')}
+                    className={`cursor-pointer font-mono text-[8.5px] uppercase py-[2px] px-[5px] tracking-[.04em] whitespace-nowrap inline-block border-none ${s.label === 'principal' ? 'bg-teal-soft text-teal hover:bg-teal/20' : 'bg-amber-soft text-amber hover:bg-amber/20'}`}
+                    title="Alternar status do fornecedor"
+                  >
                     {s.label}
-                  </span>
+                  </button>
                 </td>
                 <td className="max-w-[80px] sm:max-w-[120px] overflow-hidden py-1">
                   <a href={s.url} target="_blank" rel="noopener noreferrer" title={s.url} className="text-muted text-[11px] no-underline border-b border-dotted border-line-strong inline-block max-w-full overflow-hidden text-ellipsis whitespace-nowrap align-bottom hover:text-ink hover:border-muted">
@@ -155,6 +171,18 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
                       placeholder="0,00"
                       value={s.price}
                       onChange={(e) => handleSupplierPriceChange(s.id, e.target.value)}
+                      className="border-none w-full p-[5px_5px_5px_3px] bg-transparent text-ink font-mono text-[11.5px] focus:outline-none"
+                    />
+                  </div>
+                </td>
+                <td className="w-[50px] sm:w-[60px] pl-1 sm:pl-2 py-1">
+                  <div className="flex items-center rounded-md border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)]">
+                    <span className="pl-1.5 font-mono text-[10.5px] text-muted2" title="Unidades vendidas">Qtd</span>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      value={s.vendas ?? ''}
+                      onChange={(e) => handleSupplierVendasChange(s.id, e.target.value === '' ? undefined : Number(e.target.value))}
                       className="border-none w-full p-[5px_5px_5px_3px] bg-transparent text-ink font-mono text-[11.5px] focus:outline-none"
                     />
                   </div>
@@ -208,8 +236,8 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
       </td>
 
       <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 border-line align-top md:w-[120px]">
-        <div className="md:hidden font-mono text-[10px] uppercase tracking-[.07em] text-muted mb-2 font-semibold">Venda</div>
-        <div className="flex items-center rounded-md border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] focus-within:border-teal transition-colors">
+        <div className="md:hidden font-mono text-[10px] uppercase tracking-[.07em] text-muted mb-2 font-semibold">Venda / Qtd</div>
+        <div className="flex items-center rounded-md border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] focus-within:border-teal transition-colors mb-2">
           <span className="pl-[7px] font-mono text-[11px] text-muted2">R$</span>
           <input
             type="number"
@@ -219,6 +247,12 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
             onChange={(e) => handleFieldChange('precoVenda', e.target.value)}
             className="border-none w-full p-[7px_7px_7px_4px] bg-transparent text-ink font-mono text-[12.5px] focus:outline-none"
           />
+        </div>
+        <div className="flex items-center rounded-md border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] focus-within:border-amber transition-colors">
+          <span className="pl-[7px] pr-[4px] font-mono text-[11px] text-muted2" title="Itens Vendidos">Qtd.</span>
+          <div className="border-none w-full p-[7px_7px_7px_4px] bg-transparent text-ink font-mono text-[12.5px]">
+            {totalVendas > 0 ? totalVendas : '-'}
+          </div>
         </div>
       </td>
 

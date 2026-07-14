@@ -4,6 +4,7 @@ export interface Supplier {
   url: string;
   price: string;
   obs?: string;
+  vendas?: number;
 }
 
 export interface Product {
@@ -16,6 +17,7 @@ export interface Product {
   selected: string | null;
   suppliers: Supplier[];
   active?: boolean;
+  vendas?: number;
 }
 
 export interface Session {
