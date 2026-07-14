@@ -15,6 +15,7 @@ export interface Product {
   notas: string;
   selected: string | null;
   suppliers: Supplier[];
+  active?: boolean;
 }
 
 export interface Session {

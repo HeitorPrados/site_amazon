@@ -39,7 +39,7 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
   const lucroClass = m ? (m.lucro > 0 ? 'text-teal' : 'text-red') : 'text-muted2 text-[11px] font-normal';
   const margemClass = m ? (m.margem > 0 ? 'bg-teal-soft text-teal' : 'bg-red-soft text-red') : '';
 
-  const handleFieldChange = (field: keyof Product, value: string) => {
+  const handleFieldChange = (field: keyof Product, value: any) => {
     onChange({ ...p, [field]: value });
   };
 
@@ -76,7 +76,7 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
   };
 
   return (
-    <tr className="block md:table-row border-b border-line md:hover:bg-[rgba(255,255,255,0.015)] transition-colors group mb-6 md:mb-0 bg-[#0d1017] md:bg-transparent rounded-lg md:rounded-none overflow-hidden border border-line-strong md:border-0 md:border-b">
+    <tr className={`block md:table-row border-b border-line md:hover:bg-[rgba(255,255,255,0.015)] transition-colors group mb-6 md:mb-0 bg-[#0d1017] md:bg-transparent rounded-lg md:rounded-none overflow-hidden border border-line-strong md:border-0 md:border-b ${p.active === false ? 'opacity-50 grayscale hover:opacity-100 transition-opacity duration-300' : ''}`}>
       <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 border-line align-top md:w-[220px]">
         <div className="md:hidden font-mono text-[10px] uppercase tracking-[.07em] text-muted mb-2 font-semibold">Produto</div>
         <input
@@ -96,6 +96,13 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
           >
             ver →
           </a>
+          <button
+            onClick={() => handleFieldChange('active', p.active === false ? true : false)}
+            title={p.active !== false ? "Marcar como inativo" : "Marcar como ativo"}
+            className={`text-[9px] uppercase tracking-[.05em] px-1.5 py-0.5 rounded-sm border ${p.active !== false ? 'text-teal border-teal/30 bg-teal-soft hover:bg-[rgba(51,201,160,0.2)]' : 'text-muted border-line bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.08)]'} transition-colors ml-auto md:ml-1 cursor-pointer`}
+          >
+            {p.active !== false ? 'Ativo' : 'Inativo'}
+          </button>
         </div>
         <textarea
           placeholder="Observações (opcional)..."
