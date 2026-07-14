@@ -48,6 +48,11 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
     onChange({ ...p, suppliers });
   };
 
+  const handleSupplierObsChange = (id: string, obs: string) => {
+    const suppliers = p.suppliers.map(s => s.id === id ? { ...s, obs } : s);
+    onChange({ ...p, suppliers });
+  };
+
   const handleRemoveSupplier = (id: string) => {
     const suppliers = p.suppliers.filter(s => s.id !== id);
     let selected = p.selected;
@@ -120,10 +125,19 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
                     {s.label}
                   </span>
                 </td>
-                <td className="max-w-[100px] sm:max-w-[150px] overflow-hidden py-1">
+                <td className="max-w-[80px] sm:max-w-[120px] overflow-hidden py-1">
                   <a href={s.url} target="_blank" rel="noopener noreferrer" title={s.url} className="text-muted text-[11px] no-underline border-b border-dotted border-line-strong inline-block max-w-full overflow-hidden text-ellipsis whitespace-nowrap align-bottom hover:text-ink hover:border-muted">
                     {shortLink(s.url) || '(sem link)'}
                   </a>
+                </td>
+                <td className="w-[70px] sm:w-[110px] pl-1 sm:pl-2 py-1">
+                  <input
+                    type="text"
+                    placeholder="Obs..."
+                    value={s.obs || ''}
+                    onChange={(e) => handleSupplierObsChange(s.id, e.target.value)}
+                    className="w-full text-[10.5px] p-[4px_6px] rounded-md border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] text-ink font-mono focus:outline-none focus:border-[rgba(255,255,255,0.1)] placeholder:text-muted2"
+                  />
                 </td>
                 <td className="w-[80px] sm:w-[100px] pl-1 sm:pl-2 py-1">
                   <div className={`flex items-center rounded-md border bg-[rgba(255,255,255,0.02)] ${p.selected === s.id ? 'border-teal' : 'border-[rgba(255,255,255,0.05)]'}`}>

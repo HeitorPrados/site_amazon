@@ -3,6 +3,7 @@ export interface Supplier {
   label: string;
   url: string;
   price: string;
+  obs?: string;
 }
 
 export interface Product {
