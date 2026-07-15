@@ -144,7 +144,7 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
         <div className="md:hidden font-mono text-[10px] uppercase tracking-[.07em] text-muted mb-2 font-semibold">Produto</div>
         <div className="flex gap-3">
           <div 
-            className="w-[42px] h-[42px] shrink-0 bg-[rgba(255,255,255,0.02)] rounded-md overflow-hidden flex items-center justify-center border border-[rgba(255,255,255,0.05)] mt-1.5 p-0.5 cursor-pointer relative group/img focus:outline-none focus:ring-1 focus:ring-amber/50"
+            className="w-[60px] h-[60px] shrink-0 bg-[rgba(255,255,255,0.02)] rounded-md overflow-hidden flex items-center justify-center border border-[rgba(255,255,255,0.05)] mt-1.5 p-0.5 cursor-pointer relative group/img focus:outline-none focus:ring-1 focus:ring-amber/50"
             onClick={() => {
               const url = window.prompt('Cole a URL da imagem do produto (ou selecione a caixa e dê Ctrl+V para colar um arquivo):', p.image_url || '');
               if (url !== null) handleFieldChange('image_url', url.trim());
