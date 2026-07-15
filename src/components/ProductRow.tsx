@@ -38,6 +38,58 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
   const lucroClass = m ? (m.lucro > 0 ? 'text-teal' : 'text-red') : 'text-muted2 text-[11px] font-normal';
   const margemClass = m ? (m.margem > 0 ? 'bg-teal-soft text-teal' : 'bg-red-soft text-red') : '';
 
+  const handleImagePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const items = e.clipboardData.items;
+    
+    // First check for image files
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (!file) continue;
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 250;
+            const MAX_HEIGHT = 250;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/webp', 0.85);
+            handleFieldChange('image_url', dataUrl);
+          };
+          img.src = event.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+    }
+    
+    // Fallback to text (URL)
+    const text = e.clipboardData.getData('text');
+    if (text && text.match(/^https?:\/\//i)) {
+      handleFieldChange('image_url', text.trim());
+    }
+  };
+
   const handleFieldChange = (field: keyof Product, value: any) => {
     onChange({ ...p, [field]: value });
   };
@@ -92,12 +144,14 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
         <div className="md:hidden font-mono text-[10px] uppercase tracking-[.07em] text-muted mb-2 font-semibold">Produto</div>
         <div className="flex gap-3">
           <div 
-            className="w-[42px] h-[42px] shrink-0 bg-[rgba(255,255,255,0.02)] rounded-md overflow-hidden flex items-center justify-center border border-[rgba(255,255,255,0.05)] mt-1.5 p-0.5 cursor-pointer relative group/img"
+            className="w-[42px] h-[42px] shrink-0 bg-[rgba(255,255,255,0.02)] rounded-md overflow-hidden flex items-center justify-center border border-[rgba(255,255,255,0.05)] mt-1.5 p-0.5 cursor-pointer relative group/img focus:outline-none focus:ring-1 focus:ring-amber/50"
             onClick={() => {
-              const url = window.prompt('Cole a URL da imagem do produto:', p.image_url || '');
+              const url = window.prompt('Cole a URL da imagem do produto (ou selecione a caixa e dê Ctrl+V para colar um arquivo):', p.image_url || '');
               if (url !== null) handleFieldChange('image_url', url.trim());
             }}
-            title="Clique para adicionar/alterar a imagem"
+            onPaste={handleImagePaste}
+            tabIndex={0}
+            title="Clique para adicionar URL ou cole a imagem aqui (Ctrl+V)"
           >
             {p.image_url || p.asin ? (
               <img 
