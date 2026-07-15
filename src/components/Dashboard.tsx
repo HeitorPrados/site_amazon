@@ -22,6 +22,9 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
   const [filterVal, setFilterVal] = useState('all');
   const [newAsin, setNewAsin] = useState('');
   
+  const [sortField, setSortField] = useState<'produto' | 'categoria' | 'venda' | 'margem'>('produto');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
   // Track individual row statuses
   const [rowStatuses, setRowStatuses] = useState<Record<string, { state: 'saving' | 'error' | ''; text: string }>>({});
   const saveTimersRef = useRef<Record<string, NodeJS.Timeout>>({});
@@ -130,21 +133,40 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
       if (filterVal === 'neg') return m && m.lucro <= 0;
       return true;
     }).sort((a, b) => {
-      const nameA = (a.nome || '').trim().toLowerCase();
-      const nameB = (b.nome || '').trim().toLowerCase();
+      let comparison = 0;
       
-      if (nameA && !nameB) return -1;
-      if (!nameA && nameB) return 1;
-      
-      if (nameA < nameB) return -1;
-      if (nameA > nameB) return 1;
-      return 0;
+      if (sortField === 'produto') {
+        const nameA = (a.nome || '').trim().toLowerCase();
+        const nameB = (b.nome || '').trim().toLowerCase();
+        if (nameA && !nameB) comparison = -1;
+        else if (!nameA && nameB) comparison = 1;
+        else if (nameA < nameB) comparison = -1;
+        else if (nameA > nameB) comparison = 1;
+      } else if (sortField === 'categoria') {
+        const catA = (a.categoria || '').trim().toLowerCase();
+        const catB = (b.categoria || '').trim().toLowerCase();
+        if (catA < catB) comparison = -1;
+        else if (catA > catB) comparison = 1;
+      } else if (sortField === 'venda') {
+        const valA = parseFloat(a.precoVenda) || 0;
+        const valB = parseFloat(b.precoVenda) || 0;
+        comparison = valA - valB;
+      } else if (sortField === 'margem') {
+        const mA = computeMetrics(a);
+        const mB = computeMetrics(b);
+        const margemA = mA ? mA.margem : -999999;
+        const margemB = mB ? mB.margem : -999999;
+        comparison = margemA - margemB;
+      }
+
+      return sortOrder === 'asc' ? comparison : -comparison;
     });
-  }, [products, searchTerm, filterVal]);
+  }, [products, searchTerm, filterVal, sortField, sortOrder]);
 
   const stats = useMemo(() => {
     const metrics = products.map(p => ({ p, m: computeMetrics(p) })).filter(item => item.m !== null);
-    const pos = metrics.filter(item => item.m!.lucro > 0).length;
+    const ativos = products.filter(p => p.active !== false).length;
+    const acima30 = metrics.filter(item => item.m!.margem >= 30).length;
     const avg = metrics.length ? metrics.reduce((a, item) => a + item.m!.margem, 0) / metrics.length : null;
     
     const fatTotal = products.reduce((acc, p) => {
@@ -173,13 +195,27 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
 
     return {
       total: products.length,
-      filled: metrics.length,
-      pos,
+      ativos,
+      acima30,
       avg: avg !== null ? avg.toFixed(1) + "%" : "–",
       fatTotal,
       lucroTotal
     };
   }, [products]);
+
+  const handleSort = (field: 'produto' | 'categoria' | 'venda' | 'margem') => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortField !== field) return <span className="opacity-0 group-hover:opacity-30 inline-block ml-1">↕</span>;
+    return <span className="text-amber inline-block ml-1">{sortOrder === 'asc' ? '↑' : '↓'}</span>;
+  };
 
   return (
     <div id="appShell">
@@ -204,12 +240,12 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
               <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">produtos</div>
             </div>
             <div className="p-[9px_12px] md:p-[9px_16px] md:border-r border-b lg:border-b-0 border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
-              <div className="font-display text-[19px] font-bold text-white">{stats.filled}</div>
-              <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">c/ margem</div>
+              <div className="font-display text-[19px] font-bold text-white">{stats.ativos}</div>
+              <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">ativos</div>
             </div>
             <div className="p-[9px_12px] md:p-[9px_16px] border-r border-b lg:border-b-0 border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
-              <div className="font-display text-[19px] font-bold text-white">{stats.pos}</div>
-              <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">margem +</div>
+              <div className="font-display text-[19px] font-bold text-white">{stats.acima30}</div>
+              <div className="font-mono text-[9px] md:text-[9.5px] uppercase tracking-[.08em] text-muted mt-0.5">margem {">="} 30%</div>
             </div>
             <div className="p-[9px_12px] md:p-[9px_16px] md:border-r border-b md:border-b-0 lg:border-b-0 border-[rgba(255,255,255,0.05)] min-w-[90px] md:min-w-[100px]">
               <div className="font-display text-[19px] font-bold text-white">{stats.avg}</div>
@@ -282,11 +318,19 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
             <table className="w-full border-collapse block md:table">
               <thead className="hidden md:table-header-group">
                 <tr>
-                  <th className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap">Produto</th>
+                  <th onClick={() => handleSort('produto')} className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap cursor-pointer hover:bg-[rgba(255,255,255,0.02)] transition-colors group select-none">
+                    Produto {getSortIcon('produto')}
+                  </th>
                   <th className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap">Fornecedores (Shopee)</th>
-                  <th className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap">Categoria</th>
-                  <th className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap">Venda</th>
-                  <th className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap">Margem / Lucro</th>
+                  <th onClick={() => handleSort('categoria')} className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap cursor-pointer hover:bg-[rgba(255,255,255,0.02)] transition-colors group select-none">
+                    Categoria {getSortIcon('categoria')}
+                  </th>
+                  <th onClick={() => handleSort('venda')} className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap cursor-pointer hover:bg-[rgba(255,255,255,0.02)] transition-colors group select-none">
+                    Venda {getSortIcon('venda')}
+                  </th>
+                  <th onClick={() => handleSort('margem')} className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap cursor-pointer hover:bg-[rgba(255,255,255,0.02)] transition-colors group select-none">
+                    Margem / Lucro {getSortIcon('margem')}
+                  </th>
                   <th className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap"></th>
                 </tr>
               </thead>
