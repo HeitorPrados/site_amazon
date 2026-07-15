@@ -18,6 +18,7 @@ export interface Product {
   suppliers: Supplier[];
   active?: boolean;
   vendas?: number;
+  image_url?: string;
 }
 
 export interface Session {

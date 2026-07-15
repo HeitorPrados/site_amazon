@@ -13,6 +13,8 @@ function dbToProduct(row: any): Product {
     notas: row.notas || '',
     selected: row.selected_supplier,
     suppliers: row.suppliers || [],
+    active: row.active !== false,
+    image_url: row.image_url || '',
   };
 }
 
@@ -25,6 +27,8 @@ function productToDb(p: Product) {
     notas: p.notas,
     selected_supplier: p.selected,
     suppliers: p.suppliers,
+    active: p.active !== false,
+    image_url: p.image_url || '',
   };
 }
 

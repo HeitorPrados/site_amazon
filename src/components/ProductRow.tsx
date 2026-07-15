@@ -88,32 +88,58 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
 
   return (
     <tr className={`block md:table-row border-b border-line md:hover:bg-[rgba(255,255,255,0.015)] transition-colors group mb-6 md:mb-0 bg-[#0d1017] md:bg-transparent rounded-lg md:rounded-none overflow-hidden border border-line-strong md:border-0 md:border-b ${p.active === false ? 'opacity-50 grayscale hover:opacity-100 transition-opacity duration-300' : ''}`}>
-      <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 border-line align-top md:w-[220px]">
+      <td className="block md:table-cell p-4 md:p-3 border-b md:border-b-0 border-line align-top md:w-[280px]">
         <div className="md:hidden font-mono text-[10px] uppercase tracking-[.07em] text-muted mb-2 font-semibold">Produto</div>
-        <input
-          type="text"
-          placeholder="Nome do produto..."
-          value={p.nome}
-          onChange={(e) => handleFieldChange('nome', e.target.value)}
-          className="w-full mb-1 border-none bg-transparent text-white font-display text-[15px] font-medium py-1 focus:outline-none focus:border-b focus:border-amber transition-colors placeholder:text-muted2"
-        />
-        <div className="flex items-center gap-2 mb-2">
-          <span className="font-mono text-[11px] text-muted">{p.asin}</span>
-          <a 
-            href={`https://www.amazon.com.br/dp/${p.asin}`} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-[10px] text-amber no-underline border-b border-dotted border-amber opacity-80 hover:opacity-100"
+        <div className="flex gap-3">
+          <div 
+            className="w-[42px] h-[42px] shrink-0 bg-[rgba(255,255,255,0.02)] rounded-md overflow-hidden flex items-center justify-center border border-[rgba(255,255,255,0.05)] mt-1.5 p-0.5 cursor-pointer relative group/img"
+            onClick={() => {
+              const url = window.prompt('Cole a URL da imagem do produto:', p.image_url || '');
+              if (url !== null) handleFieldChange('image_url', url.trim());
+            }}
+            title="Clique para adicionar/alterar a imagem"
           >
-            ver →
-          </a>
-          <button
-            onClick={() => handleFieldChange('active', p.active === false ? true : false)}
-            title={p.active !== false ? "Marcar como inativo" : "Marcar como ativo"}
-            className={`text-[9px] uppercase tracking-[.05em] px-1.5 py-0.5 rounded-sm border ${p.active !== false ? 'text-teal border-teal/30 bg-teal-soft hover:bg-[rgba(51,201,160,0.2)]' : 'text-muted border-line bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.08)]'} transition-colors ml-auto md:ml-1 cursor-pointer`}
-          >
-            {p.active !== false ? 'Ativo' : 'Inativo'}
-          </button>
+            {p.image_url || p.asin ? (
+              <img 
+                src={p.image_url || `https://m.media-amazon.com/images/P/${p.asin}.01._SCLZZZZZZZ_.jpg`} 
+                alt="" 
+                className="max-w-full max-h-full object-contain mix-blend-screen"
+                onError={(e) => e.currentTarget.style.display = 'none'}
+              />
+            ) : (
+              <span className="text-[8px] text-muted2 font-mono text-center leading-tight">sem<br/>img</span>
+            )}
+            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
+               <span className="text-[9px] text-white font-mono text-center leading-none">EDIT</span>
+            </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <input
+              type="text"
+              placeholder="Nome do produto..."
+              value={p.nome}
+              onChange={(e) => handleFieldChange('nome', e.target.value)}
+              className="w-full mb-1 border-none bg-transparent text-white font-display text-[14px] leading-tight font-medium py-1 focus:outline-none focus:border-b focus:border-amber transition-colors placeholder:text-muted2"
+            />
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-mono text-[11px] text-muted">{p.asin}</span>
+              <a 
+                href={`https://www.amazon.com.br/dp/${p.asin}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[10px] text-amber no-underline border-b border-dotted border-amber opacity-80 hover:opacity-100"
+              >
+                ver →
+              </a>
+              <button
+                onClick={() => handleFieldChange('active', p.active === false ? true : false)}
+                title={p.active !== false ? "Marcar como inativo" : "Marcar como ativo"}
+                className={`text-[9px] uppercase tracking-[.05em] px-1.5 py-0.5 rounded-sm border ${p.active !== false ? 'text-teal border-teal/30 bg-teal-soft hover:bg-[rgba(51,201,160,0.2)]' : 'text-muted border-line bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.08)]'} transition-colors ml-auto md:ml-1 cursor-pointer`}
+              >
+                {p.active !== false ? 'Ativo' : 'Inativo'}
+              </button>
+            </div>
+          </div>
         </div>
         <textarea
           placeholder="Observações (opcional)..."
