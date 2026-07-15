@@ -110,9 +110,11 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
     const compra = selSup ? parseFloat(selSup.price) : NaN;
     const rate = catRate(p.categoria);
     if (isNaN(venda) || isNaN(compra) || rate === null || venda <= 0) return null;
+    const lucro = venda - (venda * (rate / 100)) - compra;
+    const margem = compra > 0 ? (lucro / compra) * 100 : 0;
     return {
-      lucro: venda - (venda * (rate / 100)) - compra,
-      margem: ((venda - (venda * (rate / 100)) - compra) / venda) * 100
+      lucro,
+      margem
     };
   };
 

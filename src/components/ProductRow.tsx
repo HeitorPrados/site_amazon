@@ -23,9 +23,8 @@ function computeMetrics(p: Product) {
   if (isNaN(venda) || isNaN(compra) || rate === null || venda <= 0) return null;
   const taxa = venda * (rate / 100);
   const lucro = venda - taxa - compra;
-  const margem = (lucro / venda) * 100;
-  const roi = compra > 0 ? (lucro / compra) * 100 : null;
-  return { taxa, lucro, margem, roi, rate };
+  const margem = compra > 0 ? (lucro / compra) * 100 : 0;
+  return { taxa, lucro, margem, rate };
 }
 
 function shortLink(url: string) {
@@ -267,7 +266,6 @@ export default function ProductRow({ product: p, onChange, onDelete, statusText,
             </div>
             <div className="mt-2 flex gap-[5px] flex-wrap">
               <span className={`font-mono text-[9.5px] p-[2px_6px] ${margemClass}`}>margem {m.margem.toFixed(1)}%</span>
-              {m.roi !== null && <span className="font-mono text-[9.5px] p-[2px_6px] bg-amber-soft text-amber">ROI {m.roi.toFixed(1)}%</span>}
             </div>
           </>
         ) : (
