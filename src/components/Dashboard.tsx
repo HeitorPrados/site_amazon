@@ -22,7 +22,7 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
   const [filterVal, setFilterVal] = useState('all');
   const [newAsin, setNewAsin] = useState('');
   
-  const [sortField, setSortField] = useState<'produto' | 'categoria' | 'venda' | 'margem'>('produto');
+  const [sortField, setSortField] = useState<'produto' | 'categoria' | 'venda' | 'margem' | 'qtd'>('produto');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Track individual row statuses
@@ -131,6 +131,11 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
       if (filterVal === 'empty') return !m;
       if (filterVal === 'pos') return m && m.lucro > 0;
       if (filterVal === 'neg') return m && m.lucro <= 0;
+      
+      const vendas = (p.suppliers || []).reduce((sum, s) => sum + (s.vendas || 0), 0);
+      if (filterVal === 'sales_pos') return vendas > 0;
+      if (filterVal === 'sales_zero') return vendas === 0;
+      
       return true;
     }).sort((a, b) => {
       let comparison = 0;
@@ -151,6 +156,10 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
         const valA = parseFloat(a.precoVenda) || 0;
         const valB = parseFloat(b.precoVenda) || 0;
         comparison = valA - valB;
+      } else if (sortField === 'qtd') {
+        const qtdA = (a.suppliers || []).reduce((sum, s) => sum + (s.vendas || 0), 0);
+        const qtdB = (b.suppliers || []).reduce((sum, s) => sum + (s.vendas || 0), 0);
+        comparison = qtdA - qtdB;
       } else if (sortField === 'margem') {
         const mA = computeMetrics(a);
         const mB = computeMetrics(b);
@@ -203,7 +212,7 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
     };
   }, [products]);
 
-  const handleSort = (field: 'produto' | 'categoria' | 'venda' | 'margem') => {
+  const handleSort = (field: 'produto' | 'categoria' | 'venda' | 'margem' | 'qtd') => {
     if (sortField === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
@@ -286,6 +295,8 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
             <option value="empty" className="bg-[#0d1017] text-ink">Sem margem</option>
             <option value="pos" className="bg-[#0d1017] text-ink">Margem positiva</option>
             <option value="neg" className="bg-[#0d1017] text-ink">Margem negativa</option>
+            <option value="sales_pos" className="bg-[#0d1017] text-ink">Com vendas</option>
+            <option value="sales_zero" className="bg-[#0d1017] text-ink">Sem vendas</option>
           </select>
           <div className="flex flex-1 gap-2 w-full md:min-w-[220px]">
             <input
@@ -325,8 +336,16 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
                   <th onClick={() => handleSort('categoria')} className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap cursor-pointer hover:bg-[rgba(255,255,255,0.02)] transition-colors group select-none">
                     Categoria {getSortIcon('categoria')}
                   </th>
-                  <th onClick={() => handleSort('venda')} className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap cursor-pointer hover:bg-[rgba(255,255,255,0.02)] transition-colors group select-none">
-                    Venda {getSortIcon('venda')}
+                  <th className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <span onClick={() => handleSort('venda')} className="cursor-pointer hover:text-white transition-colors group select-none flex items-center">
+                        Venda {getSortIcon('venda')}
+                      </span>
+                      <span className="text-[rgba(255,255,255,0.15)]">/</span>
+                      <span onClick={() => handleSort('qtd')} className="cursor-pointer hover:text-white transition-colors group select-none flex items-center">
+                        Qtd {getSortIcon('qtd')}
+                      </span>
+                    </div>
                   </th>
                   <th onClick={() => handleSort('margem')} className="sticky top-0 bg-[#0b0d12] text-muted font-mono text-[10px] uppercase tracking-[.07em] font-semibold text-left p-[16px_12px] border-b border-[rgba(255,255,255,0.05)] whitespace-nowrap cursor-pointer hover:bg-[rgba(255,255,255,0.02)] transition-colors group select-none">
                     Margem / Lucro {getSortIcon('margem')}
