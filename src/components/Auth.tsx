@@ -44,7 +44,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-[radial-gradient(circle_at_30%_20%,#141822_0%,#0b0d12_60%)]">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_30%_20%,#141822_0%,#0b0d12_60%)]">
       <div className="w-full max-w-[380px] bg-panel border border-line-strong p-[28px_26px_26px]">
         <div className="font-mono text-[10.5px] tracking-[.14em] uppercase text-amber mb-1.5">Painel de Arbitragem</div>
         <h1 className="font-display text-[21px] m-0 mb-1 text-white">
@@ -134,6 +134,9 @@ export default function Auth() {
             {error}
           </div>
         )}
+      </div>
+      <div className="mt-8 text-muted font-mono text-[11px] opacity-60">
+        CNPJ: 65.791.597/0001-85
       </div>
     </div>
   );

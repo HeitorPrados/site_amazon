@@ -386,6 +386,7 @@ export default function Dashboard({ userEmail, onLogout }: DashboardProps) {
           <span><b className="text-muted font-normal">Preço de compra</b> = fornecedor marcado</span>
           <span><b className="text-muted font-normal">Taxa Amazon</b> = % da categoria sobre o preço de venda</span>
           <span>Dados salvos no seu banco Supabase, protegidos por login.</span>
+          <span className="w-full mt-2 text-center text-muted opacity-60">CNPJ: 65.791.597/0001-85</span>
         </footer>
       </main>
     </div>
